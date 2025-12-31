@@ -36,7 +36,16 @@
 
 #include <WiFiClient.h>
 #include <FS.h>
-#include <SD_MMC.h>
+#include "config.h"
+#ifndef USE_SD_SPI
+#define USE_SD_SPI 1
+#endif
+#if USE_SD_SPI
+  #include <SD.h>
+  #include <SPI.h>
+#else
+  #include <SD_MMC.h>
+#endif
 
 #define FTP_SERVER_VERSION "FTP-2016-01-14"
 
@@ -53,11 +62,11 @@ class FtpServer {
   public:
 
     FtpServer();
-    void    begin(fs::SDMMCFS* sdf, String uname, String pword);
+    void    begin(fs::FS* sdf, String uname, String pword);
     int     handleFTP();
 
   private:
-    fs::SDMMCFS* _sdf;
+    fs::FS* _sdf;
     void    iniVariables();
     void    clientConnected();
     void    disconnectClient();

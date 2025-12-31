@@ -71,9 +71,12 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <FS.h>
-#include <SD_MMC.h>
-// #include "SD.h"
-// #include "SPI.h"
+#if USE_SD_SPI
+  #include <SD.h>
+  #include <SPI.h>
+#else
+  #include <SD_MMC.h>
+#endif
 
 WiFiServer ftpServer( FTP_CTRL_PORT );
 WiFiServer dataServer( FTP_DATA_PORT_PASV );
@@ -81,7 +84,7 @@ WiFiServer dataServer( FTP_DATA_PORT_PASV );
 FtpServer::FtpServer() {
 }
 
-void FtpServer::begin(fs::SDMMCFS* sdf, String uname, String pword) {
+void FtpServer::begin(fs::FS* sdf, String uname, String pword) {
   // Tells the ftp server to begin listening for incoming connection
   _FTP_USER = uname;
   _FTP_PASS = pword;

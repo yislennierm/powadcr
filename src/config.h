@@ -31,6 +31,8 @@
     To Contact the dev team you can write to hash6iron@gmail.com
  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
+#pragma once
+
 //
 // Dependency Graph works fine with v1.0r6 (06/10/2025)
 //
@@ -103,26 +105,41 @@
 #define LOG_LEVEL                                       AudioLogger::Info
 // Definicion del puerto serie para la pantalla
 #define SerialHWDataBits                                921600
-#define hmiTxD                                          23
-#define hmiRxD                                          18
-#define powerLed                                        22
-#define GPIO_MSX_REMOTE_PAUSE                           19
+#define hmiTxD                                          32
+#define hmiRxD                                          33
+#define powerLed                                        2
+#define GPIO_MSX_REMOTE_PAUSE                           25
 #define WDT_TIMEOUT                                     360000
 
 // --------------------------------------------------------------
 // Configuración de memoria para SSL
 // --------------------------------------------------------------
 // CONFIGURACIÓN SSL OPTIMIZADA
+#ifdef CONFIG_MBEDTLS_SSL_MAX_CONTENT_LEN
+#undef CONFIG_MBEDTLS_SSL_MAX_CONTENT_LEN
+#endif
 #define CONFIG_MBEDTLS_SSL_MAX_CONTENT_LEN          1024    // Reducir de 16KB por defecto
 #define CONFIG_MBEDTLS_ASYMMETRIC_CONTENT_LEN       1       // Habilitar contenido asimétrico
+#ifdef CONFIG_MBEDTLS_SSL_IN_CONTENT_LEN
+#undef CONFIG_MBEDTLS_SSL_IN_CONTENT_LEN
+#endif
 #define CONFIG_MBEDTLS_SSL_IN_CONTENT_LEN           1024    // Buffer de entrada SSL
+#ifdef CONFIG_MBEDTLS_SSL_OUT_CONTENT_LEN
+#undef CONFIG_MBEDTLS_SSL_OUT_CONTENT_LEN
+#endif
 #define CONFIG_MBEDTLS_SSL_OUT_CONTENT_LEN          1024    // Buffer de salida SSL
 
 // REDUCIR MEMORIA PARA CERTIFICADOS
+#ifdef CONFIG_MBEDTLS_CERTIFICATE_BUNDLE
+#undef CONFIG_MBEDTLS_CERTIFICATE_BUNDLE
+#endif
 #define CONFIG_MBEDTLS_CERTIFICATE_BUNDLE           0       // Deshabilitar bundle de certificados
 #define CONFIG_MBEDTLS_X509_CRT_PARSE_C             0       // Solo parsing básico
 
 // DESHABILITAR FUNCIONES SSL NO NECESARIAS
+#ifdef CONFIG_MBEDTLS_SSL_PROTO_TLS1_2
+#undef CONFIG_MBEDTLS_SSL_PROTO_TLS1_2
+#endif
 #define CONFIG_MBEDTLS_SSL_PROTO_TLS1_2             0       // Solo TLS 1.2
 #define CONFIG_MBEDTLS_SSL_PROTO_TLS1_3             0       // Deshabilitar TLS 1.3 (más pesado)
 
@@ -147,7 +164,42 @@
 // Descomentar para test de reproducción en memoria
 //#define TEST
 
-#define SD_CHIP_SELECT                                13 // Pin CS de la SD
+// --------------------------------------------------------------
+// SD card configuration
+// --------------------------------------------------------------
+#define USE_SD_SPI                                      1   // 0 = use SD_MMC (4-bit), 1 = use SPI SD module
+#define SD_CHIP_SELECT                                -1 // Pin CS de la SD
+#define SDSPI_CS_PIN                                   17  // CS pin for SPI SD (set to your wiring)
+#define SDSPI_MOSI_PIN                                21  // MOSI pin for SPI SD (set to your wiring)
+#define SDSPI_MISO_PIN                                22  // MISO pin for SPI SD (set to your wiring)
+#define SDSPI_SCK_PIN                                 13  // SCK pin for SPI SD (set to your wiring)
+#define SDSPI_FREQ_HZ                         100000UL  // SPI SD clock (Hz). Lower if unstable.
+#define SDMMC_CLK_PIN                                 -1 // Override to set SDMMC pins explicitly (e.g. LilyGO boards)
+#define SDMMC_CMD_PIN                                 -1
+#define SDMMC_D0_PIN                                  -1
+#define SDMMC_D1_PIN                                  -1
+#define SDMMC_D2_PIN                                  -1
+#define SDMMC_D3_PIN                                  -1
+
+// --------------------------------------------------------------
+// Audio output (set to 1 to use simple I2S/MAX98357A instead of ES8388 AudioKit)
+// --------------------------------------------------------------
+#define USE_SIMPLE_I2S                                 1
+#define I2S_BCK_PIN                                   25
+#define I2S_LRCK_PIN                                  26  // aka WS
+#define I2S_DATA_PIN                                  27  // DIN on MAX98357A
+
+// Headless mode (no Nextion/TJC HMI)
+#define HEADLESS_MODE                                  1
+
+// Enable TFT_eSPI UI (e.g. TTGO T-Display). Set to 1 in the tdisplay env.
+//#define USE_TDISPLAY                                   0
+#define TDISPLAY_BTN_PLAY                              0   // GPIO0 (boot button)
+#define TDISPLAY_BTN_NEXT                              35  // GPIO35 (side button)
+
+// WiFi fallback (used in headless mode if no wifi.cfg on SD)
+#define WIFI_SSID_DEFAULT                            "ASUS"
+#define WIFI_PASS_DEFAULT                            "Peluca1983"
 
 // --------------------------------------------------------------
 // Interfaz
@@ -155,6 +207,12 @@
 // CFG_FORZE_SINC_HMI = false --> No espera sincronizar con HMI
 // CFG_FORZE_SINC_HMI = true  --> Espera sincronizar con HMI
 #define CFG_FORZE_SINC_HMI true
+
+// --------------------------------------------------------------
+// UI defaults
+// --------------------------------------------------------------
+// 0 = HOME, 1 = RADIO, 2 = SETTINGS
+#define DEFAULT_SCREEN                              1
 
 // --------------------------------------------------------------
 // Browser
@@ -221,14 +279,14 @@
 // Comentar para usar streaming directo sin buffer circular
 #define USE_CIRCULAR_BUFFER_FOR_RADIO        
 
-#define MAX_RADIO_STATIONS                            128
+#define MAX_RADIO_STATIONS                            3    // reduce for low-RAM boards
 // ✅ AUMENTAR BUFFER Y AJUSTAR PARÁMETROS PARA 160kbps PROBLEMÁTICOS
-#define RADIO_BUFFER_SIZE                             (96 * 1024)    // 96KB (doble del actual)
-#define RADIO_MIN_BUFFER_FILL                         (16 * 1024)    // 16KB antes de empezar (más conservador)
+#define RADIO_BUFFER_SIZE                             (32 * 1024)    // 32KB (smaller to reduce RAM pressure)
+#define RADIO_MIN_BUFFER_FILL                         (8 * 1024)     // 8KB antes de empezar (más conservador)
 
 // ✅ INTERVALOS MÁS AGRESIVOS PARA CONEXIONES PROBLEMÁTICAS
-#define RADIO_NETWORK_READ_INTERVAL                   2              // 5ms (más frecuente que 8ms)
-#define RADIO_PLAYBACK_INTERVAL                       10             // 8ms (menos frecuente para conservar buffer)
+#define RADIO_NETWORK_READ_INTERVAL                   1              // read often
+#define RADIO_PLAYBACK_INTERVAL                       5              // play more frequently
 
 // ✅ BUFFERS MÁS GRANDES PARA ABSORBER INTERRUPCIONES
 #define RADIO_NETWORK_BUFFER_SIZE                     2048           // 512B (mitad del decoded buffer)
@@ -265,11 +323,11 @@
 #define SIZE_FOR_SPLIT                                10000
 
 // Maximo número de bloques para el descriptor.
-#define MAX_BLOCKS_IN_TAP                             4000
-#define MAX_BLOCKS_IN_TZX                             4000
+#define MAX_BLOCKS_IN_TAP                             512   // reduced for low-RAM boards
+#define MAX_BLOCKS_IN_TZX                             512   // reduced for low-RAM boards
 
 // Configuracion del test in/out
-bool TEST_LINE_IN_OUT = false;
+extern bool TEST_LINE_IN_OUT;
 
 // --------------------------------------------------------------
 //  HMI
@@ -290,7 +348,7 @@ bool TEST_LINE_IN_OUT = false;
 #define MSX_REMOTE_PAUSE
 
 // Parametros internos
-#define MAIN_VOL_FACTOR                             100
+#define MAIN_VOL_FACTOR                             50
 
 // ---------------------------------------------------------------
 // Auto-update settings
@@ -320,4 +378,3 @@ bool TEST_LINE_IN_OUT = false;
 // <GW>192.168.2.1</GW>
 // <DNS1>192.168.2.1</DNS1>
 // <DNS2>192.168.2.1</DNS2>
-

@@ -576,6 +576,13 @@ class TAPprocessor
             // La reserva de memoria para el descriptor de bloques del TAP
             // se hace en powadcr.ino
             bool blockDescriptorOk = true;
+            if (_myTAP.descriptor == nullptr) {
+                _myTAP.descriptor = (tTAPBlockDescriptor*) ps_calloc(MAX_BLOCKS_IN_TAP, sizeof(tTAPBlockDescriptor));
+                if (_myTAP.descriptor == nullptr) {
+                    FILE_CORRUPTED = true;
+                    return false;
+                }
+            }
             //  Inicializamos variables
             char nameTAP[11];
             char typeName[11];

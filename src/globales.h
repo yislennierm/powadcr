@@ -573,7 +573,7 @@ tFileBuffer FILES_FOUND_BUFF[MAX_FILES_FOUND_BUFF];
 
 int DIRCURRENTPOS = 0;
 int DIRPREVPOS = 0;
-String PATH_FILE_TO_LOAD = "";
+String PATH_FILE_TO_LOAD = "/TAP/MANIC.TAP";
 String FILE_LOAD = "";
 String FILE_TO_DELETE = "";
 String LASTFNAME = "";
@@ -652,10 +652,10 @@ const int RESET = 6;
 bool SAMPLINGTEST = false;
 //
 
-uint8_t MASTER_VOL = 90;
+uint8_t MASTER_VOL = 50;
 float MAIN_VOL = 90;
 float MAIN_VOL_R = 90;
-float MAIN_VOL_L = 5;
+float MAIN_VOL_L = 90;
 float EQ_HIGH = 0.9;
 float EQ_MID = 0.5;
 float EQ_LOW = 0.7;
@@ -671,7 +671,7 @@ bool AUTO_NEXT = false;
 int MEDIA_CURRENT_POINTER = 0;
 bool CHANGE_TRACK_FILTER = false;
 
-float MAX_MAIN_VOL = 100;
+float MAX_MAIN_VOL = 90;
 float MAX_MAIN_VOL_R = 100;
 float MAX_MAIN_VOL_L = 100;
 int EN_STEREO = 0;
@@ -1137,5 +1137,3 @@ int getFreeFileDescriptors() {
     
     return MAX_FD - count;
 }
-
-
