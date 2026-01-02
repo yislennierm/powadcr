@@ -15,4 +15,10 @@ void setWifiEnabled(bool enabled);
 float volumePct();
 void setVolumePct(float pct);
 
+// Joystick calibration
+int joyCenterX();
+int joyCenterY();
+int joyDeadzone();
+void setJoyCalibration(int cx, int cy, int dz);
+
 }  // namespace prefs

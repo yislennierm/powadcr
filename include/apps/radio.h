@@ -11,6 +11,9 @@ bool init(float volumePct, const char* url);
 // Periodic pump; call from loop().
 void loop();
 
+// Returns true if a streaming failure/timeout occurred since last check.
+bool failed();
+
 // Adjust master volume (0..100).
 void setVolume(float volumePct);
 
@@ -19,5 +22,8 @@ int bufferPercent();
 
 // Returns true if the pipeline was started successfully.
 bool isReady();
+
+// Stop and tear down the radio pipeline.
+void stop();
 
 }  // namespace radio

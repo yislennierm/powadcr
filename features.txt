@@ -1,0 +1,22 @@
+What we kept/working now
+
+Minimal radio playback using AudioTools + MAX98357A (I2S), with SD-mounted station list (radio.txt), and simple buffer/Wi‑Fi/volume UI on TTGO T-Display.
+SD mount (SPI) and station loader; default station feeds the radio pipeline.
+Basic app shell with states (Home, Radio, Settings), buttons for volume and app navigation, status line and widgets (buffer bar, Wi‑Fi bars, volume arc, toggle).
+Preferences for Wi‑Fi enabled flag and master volume; default landing screen configurable in config.h.
+Settings menu structure with list/detail views, Wi‑Fi detail showing toggle + IP/GW/DNS (display-only for now).
+What’s missing from the original firmware
+
+All HMI/Nextion UI logic and synchronization.
+Full audio kit path (ES8388, recording, playback to WAV/TAP/TZX, EQ, etc.).
+TAP/TZX processing, recorder/player, file browser, favorite management, progress bars, tape animations.
+FTP server, OTA flows, NVS settings beyond volume/Wi‑Fi flag, Wi‑Fi cfg file handling/merging, remote control inputs, rotary, headphones/amp control, mute/mono/stereo options.
+Error handling/reporting/logging richness, watchdog/timers, dual-core task orchestration from the original.
+Bluetooth, A2DP, recording, line-in, audio board tweaks, PSRAM optimizations.
+Settings interactions: the Wi‑Fi toggle and DHCP/manual toggle are display-only; no input binding yet.
+Next steps if you want parity
+
+Implement Wi‑Fi settings actions: bind a button to toggle gWifiEnabled and persist, add DHCP/manual handling, and allow editing SSID/pass (prefs + optional SD override).
+Add station selection (next/prev) and show current station in Radio UI.
+Port TAP/TZX playback/recorder pieces you still need into separate modules.
+Reintroduce features selectively (FTP, OTA, file browser) as separate apps/screens to keep main small.

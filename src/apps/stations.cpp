@@ -34,9 +34,12 @@ bool loadFromFile(const char* path) {
     line = trim(line);
     if (line.length() == 0 || line.startsWith("#")) continue;
     int sep = line.indexOf("->");
+    if (sep < 0) {
+      sep = line.indexOf(',');
+    }
     if (sep < 0) continue;
     String name = trim(line.substring(0, sep));
-    String url = trim(line.substring(sep + 2));
+    String url = trim(line.substring(sep + (line[sep] == '>' ? 2 : 1)));
     if (name.length() == 0 || url.length() == 0) continue;
     Station st{ name, url };
     gStations.push_back(st);

@@ -21,18 +21,27 @@ static URLStream urlStream;
 static bool ready = false;
 static float gVolumePct = 90.0f;
 static String gUrl;
-static const size_t NET_BUF_SZ = 4096;
+// Keep network buffer small to fit devices without PSRAM
+// Keep buffers small for boards without PSRAM
+static const size_t NET_BUF_SZ = 1024;
 static uint8_t netBuf[NET_BUF_SZ];
 static int lastBufPct = 0;
+static unsigned long lastDataMs = 0;
+static bool failFlag = false;
+static const unsigned long TIMEOUT_MS = 8000; // 8s no data -> failure
 
 bool init(float volumePct, const char* url) {
+  stop(); // ensure clean slate / free I2S
   gVolumePct = constrain(volumePct, 0.0f, 100.0f);
   gUrl = url ? url : "";
+  failFlag = false;
 
   auto cfg = i2s.defaultConfig(TX_MODE);
   cfg.sample_rate = 44100;
   cfg.bits_per_sample = 16;
-  cfg.channels = 2;
+  cfg.channels = 1; // mono to reduce memory
+  cfg.buffer_size = 256;
+  cfg.buffer_count = 4;
   cfg.pin_bck = I2S_BCK_PIN;
   cfg.pin_ws  = I2S_LRCK_PIN;
   cfg.pin_data = I2S_DATA_PIN;
@@ -45,13 +54,16 @@ bool init(float volumePct, const char* url) {
   if (!urlStream.begin(gUrl.c_str())) {
     Serial.println("URL begin failed");
     ready = false;
+    failFlag = true;
     return false;
   }
   if (!player.begin()) {
     Serial.println("Player begin failed");
     ready = false;
+    failFlag = true;
     return false;
   }
+  lastDataMs = millis();
   ready = true;
   return true;
 }
@@ -65,9 +77,20 @@ void loop() {
     size_t n = urlStream.readBytes(netBuf, toRead);
     if (n > 0) {
       player.write(netBuf, n);
+      lastDataMs = millis();
     }
   } else {
     vTaskDelay(pdMS_TO_TICKS(5));
+  }
+
+  // Timeout detection
+  if (millis() - lastDataMs > TIMEOUT_MS) {
+    Serial.println("Radio timeout: no data, marking failure.");
+    ready = false;
+    failFlag = true;
+    urlStream.end();
+    player.end();
+    return;
   }
 
   // Update buffer percent based on available bytes (proxy)
@@ -87,6 +110,21 @@ int bufferPercent() {
 
 bool isReady() {
   return ready;
+}
+
+bool failed() {
+  bool f = failFlag;
+  failFlag = false;
+  return f;
+}
+
+void stop() {
+  if (!ready && !failFlag) return;
+  urlStream.end();
+  player.end();
+  i2s.end();
+  ready = false;
+  failFlag = false;
 }
 
 }  // namespace radio

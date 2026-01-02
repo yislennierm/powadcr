@@ -173,7 +173,7 @@
 #define SDSPI_MOSI_PIN                                21  // MOSI pin for SPI SD (set to your wiring)
 #define SDSPI_MISO_PIN                                22  // MISO pin for SPI SD (set to your wiring)
 #define SDSPI_SCK_PIN                                 13  // SCK pin for SPI SD (set to your wiring)
-#define SDSPI_FREQ_HZ                         100000UL  // SPI SD clock (Hz). Lower if unstable.
+#define SDSPI_FREQ_HZ                         10000000UL  // SPI SD clock (Hz). Lower if unstable.
 #define SDMMC_CLK_PIN                                 -1 // Override to set SDMMC pins explicitly (e.g. LilyGO boards)
 #define SDMMC_CMD_PIN                                 -1
 #define SDMMC_D0_PIN                                  -1
@@ -211,8 +211,27 @@
 // --------------------------------------------------------------
 // UI defaults
 // --------------------------------------------------------------
-// 0 = HOME, 1 = RADIO, 2 = SETTINGS
-#define DEFAULT_SCREEN                              1
+// 0 = HOME, 1 = RADIO, 2 = SETTINGS, 3 = PLAYER,  4 = Calibration
+#define DEFAULT_SCREEN                              0
+
+//MARK:  Button timings (ms)
+#define BUTTON_DEBOUNCE_MS                          30
+#define BUTTON_CLICK_MS                             700   // max spacing between clicks
+#define BUTTON_PRESS_MS                             1200  // long-press threshold
+
+// Joystick support (set to 1 to use analog stick + switch)
+#define HAVE_JOYSTICK                               1
+#define JOY_SW_PIN                                  36   // joystick switch (needs external pull-up)
+#define JOY_X_PIN                                   37   // analog X
+#define JOY_Y_PIN                                   38   // analog Y
+#define JOY_DEADZONE                                200  // ADC units
+#define JOY_REPEAT_MS                               250  // repeat rate for held direction
+#define JOY_SW_THRESHOLD                            500  // ADC threshold to detect press (active low)
+
+// Default volume (0..100) used when no preference stored yet
+#define DEFAULT_VOLUME_PCT                          80.0f
+// Force applying DEFAULT_VOLUME_PCT on every boot (1=yes, 0=keep saved value)
+#define FORCE_DEFAULT_VOLUME_ON_BOOT                1
 
 // --------------------------------------------------------------
 // Browser
